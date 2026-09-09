@@ -383,6 +383,29 @@
   }
   .section-title svg{ color: var(--accent-hover); flex-shrink:0; }
 
+  .dietary-panel{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--moss) 16%, var(--surface)) 0%, color-mix(in srgb, var(--pumpkin) 14%, var(--surface)) 100%);
+    border: 1px solid var(--border);
+  }
+  .dietary-panel__title{
+    display:flex; align-items:center; gap:8px;
+    font-weight:700; font-size:.92rem;
+  }
+  .dietary-panel__title svg{ color: var(--accent-hover); flex-shrink:0; }
+  .dietary-panel__tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .dietary-tag{
+    font-size:.82rem; font-weight:700;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+  }
+
   .add-form{ display:flex; gap:8px; flex-wrap: wrap; }
   .add-form input[type="text"]{ flex: 1 1 160px; }
   .add-form select{ flex: 0 0 auto; }
@@ -549,7 +572,8 @@ const firebaseConfig = {
     car: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14"/><path d="M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M23 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M3 17v-4l2-5a2 2 0 0 1 1.9-1.3h10.2A2 2 0 0 1 19 7.7l2 5.3v4"/><path d="M3 13h18"/></svg>',
     close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
     plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-    leaf: '<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c-4 3-9 8-9 13a6 6 0 0 0 11 3c3-2 6-7 7-14-3 1-6 1-9-2Z"/><path d="M12 22V9" stroke="var(--chip-dessert-ink)" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".55"/></svg>'
+    leaf: '<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c-4 3-9 8-9 13a6 6 0 0 0 11 3c3-2 6-7 7-14-3 1-6 1-9-2Z"/><path d="M12 22V9" stroke="var(--chip-dessert-ink)" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".55"/></svg>',
+    alert: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
   };
 
   var EVENT_START = new Date("2026-11-14T17:00:00-05:00");
@@ -844,13 +868,14 @@ const firebaseConfig = {
     var status = state.rsvp ? state.rsvp.status : null;
     var headcount = state.rsvp ? state.rsvp.headcount : state.pendingHeadcount;
     var chosen = state.pendingStatus || status;
+    var yesLabel = headcount > 1 ? "Yes, we&rsquo;ll be there" : "Yes, I&rsquo;ll be there";
 
     app.innerHTML =
       '<div class="stack">' +
         '<button class="link" data-action="switch-guest">' + ICONS.back + ' Not ' + esc(state.me.name) + '?</button>' +
         '<h2>Hey ' + esc(state.me.name.split(" ")[0] || state.me.name) + '! Will you make it?</h2>' +
         '<div class="toggle-pair" role="group" aria-label="RSVP">' +
-          '<button type="button" class="toggle toggle-yes" data-action="pick-status" data-status="yes" aria-pressed="' + (chosen === "yes") + '">Yes, we&rsquo;ll be there</button>' +
+          '<button type="button" class="toggle toggle-yes" data-action="pick-status" data-status="yes" aria-pressed="' + (chosen === "yes") + '">' + yesLabel + '</button>' +
           '<button type="button" class="toggle toggle-no" data-action="pick-status" data-status="no" aria-pressed="' + (chosen === "no") + '">Can&rsquo;t make it</button>' +
         '</div>' +
         (chosen === "yes" ?
@@ -922,6 +947,16 @@ const firebaseConfig = {
       }
     } else if (isNo) {
       html += '<p class="hint">Sorry you&rsquo;ll miss it! You can still peek at what everyone&rsquo;s bringing below.</p>';
+    }
+
+    var dietaryTags = collectDietaryTags();
+    if (dietaryTags.length){
+      html += '<div class="dietary-panel">' +
+        '<div class="dietary-panel__title">' + ICONS.alert + ' Dietary notes to plan around</div>' +
+        '<div class="dietary-panel__tags">' +
+          dietaryTags.map(function(t){ return '<span class="dietary-tag">' + esc(t) + '</span>'; }).join("") +
+        '</div>' +
+      '</div>';
     }
 
     html += '<hr class="divider" />';
@@ -1080,6 +1115,26 @@ const firebaseConfig = {
       var lbl = i.label.trim().toLowerCase();
       return lbl === target || lbl.indexOf(target) !== -1 || target.indexOf(lbl) !== -1;
     });
+  }
+
+  // Pools every yes-RSVP's dietary note into a flat, de-duplicated,
+  // anonymous list of restrictions — split on commas so "vegetarian, nut
+  // allergy" becomes two separate tags. Who said what is never surfaced.
+  function collectDietaryTags(){
+    var seen = {};
+    var tags = [];
+    state.rsvps.forEach(function(r){
+      if (r.status !== "yes" || !r.dietary) return;
+      r.dietary.split(",").forEach(function(part){
+        var t = part.trim();
+        if (!t) return;
+        var key = t.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        tags.push(t);
+      });
+    });
+    return tags;
   }
 
   function renderHostToggle(){
