@@ -280,17 +280,16 @@
     font-weight: 700; font-size: .92rem;
   }
   .parking-card__title svg{ color: var(--accent-hover); }
-  .parking-card p{ font-size: .86rem; color: var(--text); line-height: 1.45; }
-  .parking-card ul{
-    margin: 8px 0 0; padding-left: 0; list-style: none;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .parking-card li{
-    display: flex; align-items: flex-start; gap: 8px;
-    font-size: .86rem; color: var(--text); line-height: 1.4;
+  .parking-card p{ font-size: .86rem; color: var(--text); line-height: 1.45; text-align: left; }
+  .parking-card__note{
+    margin-top: 8px;
     background: var(--bg-stripe);
     border-radius: 10px;
-    padding: 7px 9px;
+    padding: 8px 10px;
+    font-size: .86rem;
+    color: var(--text);
+    line-height: 1.4;
+    text-align: left;
   }
   .parking-card__sign{
     margin-top: 10px; text-align: center; font-size: .8rem;
@@ -602,10 +601,8 @@ const firebaseConfig = {
   var EVENT_ADDRESS = "4 Pinewood Terrace, Pittsburgh, PA 15237";
   var PARKING_NOTE =
     '<p>We&rsquo;ve got you covered. Here&rsquo;s the parking lowdown:</p>' +
-    '<ul>' +
-      '<li><b>4 spots</b> available right at our place. Feel free to pull on in!</li>' +
-      '<li>Extra room on the street in front of <b>5 Pinewood Terrace</b>. Just hop the curb halfway so cars can squeeze by.</li>' +
-    '</ul>' +
+    '<div class="parking-card__note">4 spots available right at our place. Feel free to pull on in!</div>' +
+    '<div class="parking-card__note">Extra room on the street in front of 5 Pinewood Terrace. Just hop the curb halfway so cars can squeeze by.</div>' +
     '<p class="parking-card__sign">See you soon! 🦃🍁</p>';
 
   function catMeta(id){
