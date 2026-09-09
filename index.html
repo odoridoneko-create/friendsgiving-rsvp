@@ -198,11 +198,11 @@
   .countdown-card__icon{
     flex-shrink: 0;
     display: flex;
-    animation: leaf-bob 2.6s ease-in-out infinite;
+    animation: pumpkin-bob 2.6s ease-in-out infinite;
   }
-  @keyframes leaf-bob{
-    0%, 100%{ transform: rotate(-6deg) translateY(0); }
-    50%{ transform: rotate(6deg) translateY(-3px); }
+  @keyframes pumpkin-bob{
+    0%, 100%{ transform: translateY(0) rotate(-3deg); }
+    50%{ transform: translateY(-4px) rotate(3deg); }
   }
   .countdown-card__text{ display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
   .countdown-card__num{
@@ -572,7 +572,13 @@ const firebaseConfig = {
     car: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14"/><path d="M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M23 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M3 17v-4l2-5a2 2 0 0 1 1.9-1.3h10.2A2 2 0 0 1 19 7.7l2 5.3v4"/><path d="M3 13h18"/></svg>',
     close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
     plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-    leaf: '<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c-4 3-9 8-9 13a6 6 0 0 0 11 3c3-2 6-7 7-14-3 1-6 1-9-2Z"/><path d="M12 22V9" stroke="var(--chip-dessert-ink)" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".55"/></svg>',
+    pumpkin: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none">' +
+      '<ellipse cx="12" cy="14" rx="9" ry="7" fill="var(--rust)" stroke="var(--chip-dessert-ink)" stroke-width="1"/>' +
+      '<path d="M12 14V7.5" stroke="var(--chip-dessert-ink)" stroke-width="1.1" stroke-linecap="round" opacity=".55"/>' +
+      '<path d="M8 14c-.3-2.6.4-5.2 1.8-6.3" stroke="var(--chip-dessert-ink)" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".55"/>' +
+      '<path d="M16 14c.3-2.6-.4-5.2-1.8-6.3" stroke="var(--chip-dessert-ink)" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".55"/>' +
+      '<path d="M12 7.5c-.2-1.7.6-2.8 2-3.3" stroke="var(--olive)" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+    '</svg>',
     alert: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
   };
 
@@ -913,7 +919,7 @@ const firebaseConfig = {
     if (isYes){
       var cd = countdownInfo();
       html += '<div class="countdown-card' + (cd.big ? '' : ' countdown-card--noNum') + '">' +
-        '<span class="countdown-card__icon">' + ICONS.leaf + '</span>' +
+        '<span class="countdown-card__icon">' + ICONS.pumpkin + '</span>' +
         '<div class="countdown-card__text">' +
           (cd.big ? '<span class="countdown-card__num">' + esc(cd.big) + '</span>' : '') +
           '<span class="countdown-card__label">' + esc(cd.label) + '</span>' +
