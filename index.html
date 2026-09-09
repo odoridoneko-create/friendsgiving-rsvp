@@ -263,7 +263,7 @@
   }
   .parking-fab:hover{ background: var(--primary-hover); }
   .parking-card{
-    width: min(260px, 72vw);
+    width: min(300px, 82vw);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -281,6 +281,22 @@
   }
   .parking-card__title svg{ color: var(--accent-hover); }
   .parking-card p{ font-size: .86rem; color: var(--text); line-height: 1.45; }
+  .parking-card ul{
+    margin: 8px 0 0; padding-left: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .parking-card li{
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: .86rem; color: var(--text); line-height: 1.4;
+    background: var(--bg-stripe);
+    border-radius: 10px;
+    padding: 7px 9px;
+  }
+  .parking-card li .em{ font-size: 1.05rem; line-height: 1.1; flex-shrink: 0; }
+  .parking-card__sign{
+    margin-top: 10px; text-align: center; font-size: .8rem;
+    color: var(--text-muted); font-weight: 600;
+  }
 
   .card{
     background: var(--surface);
@@ -585,7 +601,13 @@ const firebaseConfig = {
   var EVENT_START = new Date("2026-11-14T17:00:00-05:00");
   var EVENT_END = new Date("2026-11-14T21:00:00-05:00");
   var EVENT_ADDRESS = "4 Pinewood Terrace, Pittsburgh, PA 15237";
-  var PARKING_NOTE = "Parking is rough... <stand-in text>";
+  var PARKING_NOTE =
+    '<p>We&rsquo;ve got you covered &mdash; here&rsquo;s the parking lowdown: 🚗</p>' +
+    '<ul>' +
+      '<li><span class="em">🏡</span><span><b>4 spots</b> right at our place &mdash; pull on in!</span></li>' +
+      '<li><span class="em">🚧</span><span>Extra room on the street in front of <b>5 Pinewood Terrace</b> &mdash; just hop the curb halfway so cars can still squeeze by</span></li>' +
+    '</ul>' +
+    '<p class="parking-card__sign">See you soon! 🦃🍁</p>';
 
   function catMeta(id){
     for (var i=0;i<CATEGORIES.length;i++){ if (CATEGORIES[i].id === id) return CATEGORIES[i]; }
@@ -1174,7 +1196,7 @@ const firebaseConfig = {
             '<div class="parking-card__title">' + ICONS.car + ' Parking heads-up</div>' +
             '<button class="icon-btn" data-action="parking-dismiss" title="Got it">' + ICONS.close + '</button>' +
           '</div>' +
-          '<p>' + esc(PARKING_NOTE) + '</p>' +
+          PARKING_NOTE +
         '</div>';
     } else {
       wrap.innerHTML = '<button class="parking-fab" data-action="parking-toggle" title="Parking info" aria-label="Parking info">' + ICONS.car + '</button>';
