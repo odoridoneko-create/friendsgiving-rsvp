@@ -861,13 +861,8 @@ const firebaseConfig = {
 
     html += '<div class="section-title">' + ICONS.list + ' Being brought (' + state.items.length + ')</div>';
     if (state.items.length){
-      var others = state.items.filter(function(i){ return !isYes || i.bringerSlug !== state.me.slug; });
       html += '<div class="list">';
-      if (!others.length){
-        html += '<p class="empty">Just your item so far &mdash; be the trendsetter.</p>';
-      } else {
-        others.forEach(function(i){ html += itemRow(i, false); });
-      }
+      state.items.forEach(function(i){ html += itemRow(i, false); });
       html += '</div>';
     } else {
       html += '<p class="empty">Nobody&rsquo;s claimed a dish yet.</p>';
@@ -975,11 +970,13 @@ const firebaseConfig = {
     app.innerHTML = html;
   }
 
-  function itemRow(i, mine){
+  function itemRow(i, showActions){
+    var mine = i.bringerSlug === state.me.slug;
+    var byLabel = mine ? "you" : i.bringerName;
     return '<div class="item ' + (mine ? "item--mine" : "") + '">' +
       '<span class="chip chip-' + i.category + '">' + catMeta(i.category).label + '</span>' +
-      '<span class="item__label">' + esc(i.label) + (mine ? '' : ' <span class="item__by">&mdash; ' + esc(i.bringerName) + '</span>') + '</span>' +
-      (mine ?
+      '<span class="item__label">' + esc(i.label) + ' <span class="item__by">&mdash; ' + esc(byLabel) + '</span></span>' +
+      (showActions ?
         '<button class="icon-btn edit" data-action="edit-item" data-id="' + esc(i.id) + '" title="Edit">' + ICONS.pencil + '</button>' +
         '<button class="icon-btn" data-action="delete-item" data-id="' + esc(i.id) + '" title="Remove">' + ICONS.trash + '</button>'
         : '') +
