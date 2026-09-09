@@ -447,11 +447,6 @@
       <span>4 Pinewood Terrace, Pittsburgh, PA 15237</span>
     </div>
     <div class="banner__hosts">Hosted by Annie &amp; John</div>
-    <div class="countdown-badge" id="countdownBadge"></div>
-    <div class="banner__actions">
-      <button class="btn btn-ghost btn-sm" data-action="add-calendar">Add to Calendar</button>
-      <a class="btn btn-ghost btn-sm" id="directionsLink" href="#" target="_blank" rel="noopener">Get Directions</a>
-    </div>
   </header>
 
   <main id="app" class="card" aria-live="polite"></main>
@@ -831,6 +826,12 @@ const firebaseConfig = {
             '<button class="link" data-action="edit-rsvp">Change</button></div>';
 
     if (isYes){
+      html += '<div class="countdown-badge">' + esc(countdownText()) + '</div>';
+      html += '<div class="banner__actions">' +
+        '<button class="btn btn-ghost btn-sm" data-action="add-calendar">Add to Calendar</button>' +
+        '<a class="btn btn-ghost btn-sm" href="' + esc(directionsUrl()) + '" target="_blank" rel="noopener">Get Directions</a>' +
+      '</div>';
+
       html += '<div>';
       html += '<div class="section-title">' + ICONS.basket + ' What are you bringing?</div>';
       html += '<form id="itemForm" class="add-form" style="margin-top:10px;">' +
@@ -1364,11 +1365,6 @@ const firebaseConfig = {
   }
 
   function boot(){
-    var countdownEl = document.getElementById("countdownBadge");
-    if (countdownEl) countdownEl.textContent = countdownText();
-    var directionsEl = document.getElementById("directionsLink");
-    if (directionsEl) directionsEl.href = directionsUrl();
-
     renderAll();
     var app, auth;
     try{
