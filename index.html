@@ -498,6 +498,7 @@ const firebaseConfig = {
     households: [],
     rsvps: [],
     householdMatch: null,
+    ambiguousMatches: null,
     editingItemId: null,
     isHost: false,
     hostError: false,
@@ -544,6 +545,7 @@ const firebaseConfig = {
     }
     if (state.isHost) return renderHost(app);
     if (state.screen === "name") return renderName(app);
+    if (state.screen === "disambiguate-prompt") return renderDisambiguate(app);
     if (state.screen === "household-prompt") return renderHouseholdPrompt(app);
     if (state.screen === "rsvp") return renderRsvp(app);
     return renderMain(app);
@@ -563,6 +565,28 @@ const firebaseConfig = {
         '</form>' +
       '</div>';
     document.getElementById("nameInput").focus();
+  }
+
+  function renderDisambiguate(app){
+    var typed = state.ambiguousMatches.typedName;
+    var matches = state.ambiguousMatches.matches;
+    var html =
+      '<div class="stack">' +
+        '<button class="link" data-action="switch-guest">' + ICONS.back + ' Start over</button>' +
+        '<h2>A couple of you go by ' + esc(typed) + '</h2>' +
+        '<p class="hint">Which one are you?</p>' +
+        '<div class="stack">';
+    matches.forEach(function(m){
+      var others = m.household.members.filter(function(x){ return x !== m.member; }).join(" & ");
+      html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-household="' + esc(m.household.id) + '" data-member="' + esc(m.member) + '">' +
+        esc(m.member) + (others ? ' — with ' + esc(others) : '') +
+        '</button>';
+    });
+    html +=
+        '<button class="btn btn-ghost btn-block" data-action="disambiguate-none">None of these — continue as ' + esc(typed) + '</button>' +
+      '</div>' +
+    '</div>';
+    app.innerHTML = html;
   }
 
   function renderHouseholdPrompt(app){
@@ -742,10 +766,10 @@ const firebaseConfig = {
     html += '<hr class="divider" />';
 
     html += '<div class="section-title">Couples &amp; households</div>';
-    html += '<p class="hint">Add a couple so either partner can RSVP for both at once when they enter either name.</p>';
+    html += '<p class="hint">Add a couple so either partner can RSVP for both at once when they enter either name. Use full names (First Last) &mdash; if two guests share a first name, we need the last name to tell them apart.</p>';
     html += '<form id="householdForm" class="add-form">' +
-      '<input type="text" id="hhMember1" placeholder="First person" required style="flex:1 1 120px;" />' +
-      '<input type="text" id="hhMember2" placeholder="Second person" required style="flex:1 1 120px;" />' +
+      '<input type="text" id="hhMember1" placeholder="First person (full name)" required style="flex:1 1 120px;" />' +
+      '<input type="text" id="hhMember2" placeholder="Second person (full name)" required style="flex:1 1 120px;" />' +
       '<button type="submit" class="btn btn-primary btn-sm">Add</button>' +
     '</form>';
     if (state.households.length){
@@ -839,29 +863,57 @@ const firebaseConfig = {
     });
   }
 
-  function findHouseholdMatch(name){
+  // Matches a typed name against every household member — on the exact
+  // string OR just the first name, since guests often type only a first
+  // name while households are best stored with full names. Returns every
+  // {household, member} hit, so a name shared across two different
+  // households (two "Mike"s) surfaces both instead of silently picking one.
+  function findMemberMatches(name){
     var norm = name.trim().toLowerCase();
-    for (var i=0;i<state.households.length;i++){
-      var h = state.households[i];
-      if (!h.members || h.members.length < 2) continue;
-      for (var j=0;j<h.members.length;j++){
-        if ((h.members[j] || "").trim().toLowerCase() === norm) return h;
-      }
-    }
-    return null;
+    var matches = [];
+    state.households.forEach(function(h){
+      if (!h.members || h.members.length < 2) return;
+      h.members.forEach(function(m){
+        var memberNorm = (m || "").trim().toLowerCase();
+        var firstTok = memberNorm.split(/\s+/)[0];
+        if (memberNorm === norm || firstTok === norm){
+          matches.push({ household: h, member: m });
+        }
+      });
+    });
+    return matches;
   }
 
   function checkHouseholdOrIdentify(name){
     name = (name || "").trim();
     if (!name) return;
-    var match = findHouseholdMatch(name);
-    if (match){
-      state.householdMatch = { household: match, typedName: name };
+    var matches = findMemberMatches(name);
+    if (matches.length === 0){
+      identify(name);
+    } else if (matches.length === 1){
+      state.householdMatch = { household: matches[0].household, typedName: matches[0].member };
       state.screen = "household-prompt";
       renderAll();
     } else {
-      identify(name);
+      state.ambiguousMatches = { typedName: name, matches: matches };
+      state.screen = "disambiguate-prompt";
+      renderAll();
     }
+  }
+
+  function handleDisambiguateChoice(householdId, memberName){
+    var h = state.households.filter(function(x){ return x.id === householdId; })[0];
+    if (!h) return;
+    state.householdMatch = { household: h, typedName: memberName };
+    state.ambiguousMatches = null;
+    state.screen = "household-prompt";
+    renderAll();
+  }
+
+  function handleDisambiguateNone(){
+    var typed = state.ambiguousMatches ? state.ambiguousMatches.typedName : "";
+    state.ambiguousMatches = null;
+    identify(typed);
   }
 
   function handleHouseholdChoice(choice){
@@ -1051,6 +1103,8 @@ const firebaseConfig = {
     else if (action === "host-remove-needed") hostRemoveNeeded(btn.getAttribute("data-id"));
     else if (action === "host-remove-household") hostRemoveHousehold(btn.getAttribute("data-id"));
     else if (action === "household-choice") handleHouseholdChoice(btn.getAttribute("data-choice"));
+    else if (action === "disambiguate-choice") handleDisambiguateChoice(btn.getAttribute("data-household"), btn.getAttribute("data-member"));
+    else if (action === "disambiguate-none") handleDisambiguateNone();
     else if (action === "show-host-login"){ state.showHostLogin = true; renderHostToggle(); document.getElementById("hostPass").focus(); }
     else if (action === "host-exit"){ state.isHost = false; state.showHostLogin = false; renderAll(); }
   });
