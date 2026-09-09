@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Annie &amp; John's Friendsgiving</title>
+<meta name="description" content="Scan-to-RSVP potluck invite — mark yes/no, claim a dish, and see what's already covered." />
+<meta property="og:title" content="Annie &amp; John's Friendsgiving" />
+<meta property="og:description" content="RSVP and sign up to bring a dish for Friendsgiving, Nov 14." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%83%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    color-scheme: light;
+    --cream:            #F5EFE0;
+    --cream-alt:        #F5EAD8;
+    --tan:               #F0DEC0;
+    --tan-deep:          #F0C89A;
+    --white:             #FFFFFF;
+    --ink:               #000000;
+    --olive:             #5C6B3C;
+    --moss:              #6B7F4A;
+    --pumpkin:           #E8863C;
+    --pumpkin-deep:      #D9691E;
+    --gold:              #D98E4A;
+    --rust:              #B5451D;
+    --sienna:            #A0522D;
+    --saddle:            #8B4513;
+    --maroon:            #7A3B2E;
+
+    --bg: var(--cream);
+    --bg-stripe: var(--cream-alt);
+    --surface: var(--white);
+    --surface-tan: var(--tan);
+    --text: var(--ink);
+    --text-muted: var(--maroon);
+    --border: color-mix(in srgb, var(--sienna) 35%, transparent);
+    --border-strong: color-mix(in srgb, var(--saddle) 55%, transparent);
+
+    --primary: var(--olive);
+    --primary-hover: color-mix(in srgb, var(--olive) 82%, black);
+    --primary-ink: var(--white);
+
+    --accent: var(--pumpkin);
+    --accent-hover: var(--pumpkin-deep);
+
+    --danger: var(--rust);
+    --danger-hover: color-mix(in srgb, var(--rust) 82%, black);
+
+    --chip-main-bg: var(--saddle);
+    --chip-main-ink: var(--cream);
+    --chip-side-bg: var(--moss);
+    --chip-side-ink: var(--cream);
+    --chip-dessert-bg: var(--pumpkin);
+    --chip-dessert-ink: #2A1B0E;
+    --chip-drink-bg: var(--maroon);
+    --chip-drink-ink: var(--cream);
+    --chip-other-bg: var(--sienna);
+    --chip-other-ink: var(--cream);
+
+    --shadow: 0 1px 2px color-mix(in srgb, var(--saddle) 25%, transparent), 0 8px 24px color-mix(in srgb, var(--maroon) 18%, transparent);
+    --font-display: 'Fraunces', Georgia, 'Iowan Old Style', serif;
+    --font-body: 'Karla', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg: color-mix(in srgb, black 88%, var(--maroon) 12%);
+      --bg-stripe: color-mix(in srgb, black 82%, var(--maroon) 18%);
+      --surface: color-mix(in srgb, black 74%, var(--saddle) 26%);
+      --surface-tan: color-mix(in srgb, black 62%, var(--gold) 38%);
+      --text: var(--cream);
+      --text-muted: color-mix(in srgb, var(--cream) 62%, var(--gold) 38%);
+      --border: color-mix(in srgb, var(--cream) 22%, transparent);
+      --border-strong: color-mix(in srgb, var(--cream) 38%, transparent);
+
+      --primary: var(--moss);
+      --primary-hover: color-mix(in srgb, var(--moss) 80%, white);
+      --primary-ink: #0E140A;
+
+      --accent: var(--pumpkin);
+      --accent-hover: color-mix(in srgb, var(--pumpkin) 85%, white);
+
+      --danger: color-mix(in srgb, var(--rust) 80%, white 20%);
+      --danger-hover: color-mix(in srgb, var(--rust) 65%, white 35%);
+
+      --chip-dessert-ink: #241505;
+      --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 28px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg: color-mix(in srgb, black 88%, var(--maroon) 12%);
+    --bg-stripe: color-mix(in srgb, black 82%, var(--maroon) 18%);
+    --surface: color-mix(in srgb, black 74%, var(--saddle) 26%);
+    --surface-tan: color-mix(in srgb, black 62%, var(--gold) 38%);
+    --text: var(--cream);
+    --text-muted: color-mix(in srgb, var(--cream) 62%, var(--gold) 38%);
+    --border: color-mix(in srgb, var(--cream) 22%, transparent);
+    --border-strong: color-mix(in srgb, var(--cream) 38%, transparent);
+
+    --primary: var(--moss);
+    --primary-hover: color-mix(in srgb, var(--moss) 80%, white);
+    --primary-ink: #0E140A;
+
+    --accent: var(--pumpkin);
+    --accent-hover: color-mix(in srgb, var(--pumpkin) 85%, white);
+
+    --danger: color-mix(in srgb, var(--rust) 80%, white 20%);
+    --danger-hover: color-mix(in srgb, var(--rust) 65%, white 35%);
+
+    --chip-dessert-ink: #241505;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 28px rgba(0,0,0,.45);
+  }
+
+  *,*::before,*::after{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family: var(--font-display); text-wrap: balance; margin: 0; color: var(--text); }
+  p{ margin: 0; }
+  button{ font-family: inherit; }
+  input, select{ font-family: inherit; font-size: 1rem; }
+  a{ color: inherit; }
+  :focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  .page{
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 28px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .banner{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 24px 22px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .banner__motif{ color: var(--primary); opacity: .9; margin: 0 auto; }
+  .banner__eyebrow{
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-size: .72rem;
+    color: var(--accent-hover);
+  }
+  .banner h1{ font-size: clamp(1.7rem, 6vw, 2.3rem); font-weight: 700; }
+  .banner__meta{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: .92rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .banner__hosts{
+    margin-top: 4px;
+    font-size: .85rem;
+    color: var(--text-muted);
+  }
+
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 26px 22px;
+    box-shadow: var(--shadow);
+    animation: rise .35s ease both;
+  }
+  @keyframes rise{ from{ opacity:0; transform: translateY(8px);} to{opacity:1; transform:none;} }
+
+  .stack{ display:flex; flex-direction:column; gap:16px; }
+  .row{ display:flex; align-items:center; gap:10px; }
+  .between{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+
+  .label{ font-weight: 700; font-size: .92rem; }
+  .hint{ font-size: .84rem; color: var(--text-muted); }
+
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field input[type="text"], .field input[type="password"], .field select{
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .field input::placeholder{ color: var(--text-muted); opacity: .7; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 13px 20px;
+    border-radius: 999px;
+    border: none;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: transform .12s ease, background .15s ease, opacity .15s ease;
+  }
+  .btn:active{ transform: scale(.97); }
+  .btn-primary{ background: var(--primary); color: var(--primary-ink); }
+  .btn-primary:hover{ background: var(--primary-hover); }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn-ghost{ background: transparent; color: var(--primary); border: 1.5px solid var(--border-strong); }
+  .btn-ghost:hover{ background: var(--bg-stripe); }
+  .btn-block{ width: 100%; }
+  .btn-sm{ padding: 8px 14px; font-size: .82rem; }
+  .link{
+    background:none; border:none; padding:0; cursor:pointer;
+    font-weight:700; font-size:.85rem; color: var(--primary);
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .link:hover{ text-decoration: underline; }
+
+  .toggle-pair{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .toggle{
+    padding: 16px 10px;
+    border-radius: 16px;
+    border: 2px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 700;
+    font-size: .98rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s ease;
+  }
+  .toggle[aria-pressed="true"].toggle-yes{ background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+  .toggle[aria-pressed="true"].toggle-no{ background: var(--danger); border-color: var(--danger); color: var(--white); }
+
+  .stepper{ display:flex; align-items:center; gap:14px; justify-content:center; }
+  .stepper__btn{
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--primary);
+    font-size: 1.2rem; font-weight: 700;
+    cursor: pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .stepper__btn:hover{ background: var(--bg-stripe); }
+  .stepper__btn:disabled{ opacity: .35; cursor: not-allowed; }
+  .stepper__val{
+    font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+    min-width: 2.4ch; text-align:center; font-variant-numeric: tabular-nums;
+  }
+
+  .summary-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background: var(--bg-stripe);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+  .summary-banner__text{ font-size: .92rem; font-weight:600; }
+  .summary-banner__text b{ font-family: var(--font-display); }
+
+  .section-title{
+    display:flex; align-items:center; gap:8px;
+    font-family: var(--font-display);
+    font-size: 1.15rem; font-weight: 700;
+  }
+  .section-title svg{ color: var(--accent-hover); flex-shrink:0; }
+
+  .add-form{ display:flex; gap:8px; flex-wrap: wrap; }
+  .add-form input[type="text"]{ flex: 1 1 160px; }
+  .add-form select{ flex: 0 0 auto; }
+
+  .list{ display:flex; flex-direction:column; gap:8px; margin-top: 10px; }
+  .item{
+    display:flex; align-items:center; gap:10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  .item__label{ flex:1; font-weight: 600; font-size: .94rem; }
+  .item__by{ font-weight: 400; color: var(--text-muted); font-size: .84rem; }
+  .item--covered{ opacity: .55; }
+  .item--covered .item__label{ text-decoration: line-through; }
+  .item--mine{ border-color: var(--border-strong); }
+
+  .chip{
+    font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 999px; flex-shrink: 0;
+  }
+  .chip-main{ background: var(--chip-main-bg); color: var(--chip-main-ink); }
+  .chip-side{ background: var(--chip-side-bg); color: var(--chip-side-ink); }
+  .chip-dessert{ background: var(--chip-dessert-bg); color: var(--chip-dessert-ink); }
+  .chip-drink{ background: var(--chip-drink-bg); color: var(--chip-drink-ink); }
+  .chip-other{ background: var(--chip-other-bg); color: var(--chip-other-ink); }
+
+  .icon-btn{
+    width: 30px; height: 30px; border-radius: 50%;
+    border: none; background: transparent; color: var(--text-muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .icon-btn:hover{ background: var(--bg-stripe); color: var(--danger); }
+  .icon-btn.edit:hover{ color: var(--primary); }
+
+  .empty{ font-size: .88rem; color: var(--text-muted); font-style: italic; padding: 6px 2px; }
+
+  .divider{ height:1px; background: var(--border); margin: 18px 0; border:none; }
+
+  .toast{
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(8px);
+    background: var(--text); color: var(--bg);
+    padding: 10px 18px; border-radius: 999px; font-size: .86rem; font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+    z-index: 50;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer-note{
+    text-align:center; font-size: .78rem; color: var(--text-muted); padding-top: 8px;
+  }
+
+  .host-panel{
+    margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-strong);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .host-badge{
+    font-size: .68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--accent-hover);
+  }
+
+  .spinner{
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    animation: spin .8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .center-pad{ padding: 30px 0; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="banner">
+    <svg class="banner__motif" width="40" height="28" viewBox="0 0 40 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <path d="M20 26 C20 16 14 12 6 9" />
+      <path d="M20 26 C20 16 26 12 34 9" />
+      <path d="M20 26 V10" />
+      <ellipse cx="6" cy="7" rx="4.4" ry="2.6" transform="rotate(-28 6 7)" />
+      <ellipse cx="34" cy="7" rx="4.4" ry="2.6" transform="rotate(28 34 7)" />
+      <ellipse cx="20" cy="4" rx="3" ry="4.2" />
+    </svg>
+    <div class="banner__eyebrow">You're Invited</div>
+    <h1>Annie &amp; John's Friendsgiving</h1>
+    <div class="banner__meta">
+      <span>Saturday, November 14 &middot; 5:00 PM EST</span>
+      <span>4 Pinewood Terrace, Pittsburgh, PA 15237</span>
+    </div>
+    <div class="banner__hosts">Hosted by Annie &amp; John</div>
+  </header>
+
+  <main id="app" class="card" aria-live="polite"></main>
+
+  <p class="footer-note" id="hostToggleWrap"></p>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  collection, addDoc, onSnapshot, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAwxY76dO7PQJtSDZNMC_fx3BisDe56V0A",
+  authDomain: "friendsgiving-2026.firebaseapp.com",
+  projectId: "friendsgiving-2026",
+  storageBucket: "friendsgiving-2026.firebasestorage.app",
+  messagingSenderId: "1018456241006",
+  appId: "1:1018456241006:web:c5b3b50fdfa1ff01f9c77f"
+};
+
+(function(){
+  "use strict";
+
+  var HOST_PASSPHRASE = "gobble2026";
+  var CATEGORIES = [
+    { id: "main", label: "Main" },
+    { id: "side", label: "Side" },
+    { id: "dessert", label: "Dessert" },
+    { id: "drink", label: "Drink" },
+    { id: "other", label: "Other" }
+  ];
+  var DEFAULT_NEEDED = [
+    { label: "Stuffing", category: "side" },
+    { label: "Mac n Cheese", category: "side" },
+    { label: "Champagne", category: "drink" },
+    { label: "Wine", category: "drink" },
+    { label: "Cranberry Sauce", category: "side" },
+    { label: "Veggies", category: "side" }
+  ];
+
+  var ICONS = {
+    check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+    pencil: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    back: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+    basket: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1.5 9.5a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 10Z"/><path d="M8 10 10 4"/><path d="M16 10 14 4"/><path d="M2.5 10h19"/></svg>',
+    list: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/></svg>'
+  };
+
+  function catMeta(id){
+    for (var i=0;i<CATEGORIES.length;i++){ if (CATEGORIES[i].id === id) return CATEGORIES[i]; }
+    return CATEGORIES[4];
+  }
+  function slugify(s){
+    return (s || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-+|-+$)/g, "") || "guest";
+  }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+  function nowIso(){ return new Date().toISOString(); }
+
+  var toastTimer = null;
+  function toast(msg){
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+  }
+
+  var state = {
+    db: null,
+    dbStatus: "loading", // loading | ready | unavailable
+    screen: "name",      // name | rsvp | main
+    me: { name: "", slug: "" },
+    rsvp: null,
+    items: [],
+    needed: [],
+    editingItemId: null,
+    isHost: false,
+    hostError: false,
+    pendingHeadcount: 1
+  };
+
+  function saveIdentity(){
+    try{
+      localStorage.setItem("fg_name", state.me.name);
+      localStorage.setItem("fg_slug", state.me.slug);
+    }catch(e){}
+  }
+  function loadIdentity(){
+    try{
+      var n = localStorage.getItem("fg_name");
+      var s = localStorage.getItem("fg_slug");
+      if (n && s){ state.me = { name: n, slug: s }; return true; }
+    }catch(e){}
+    return false;
+  }
+  function clearIdentity(){
+    try{ localStorage.removeItem("fg_name"); localStorage.removeItem("fg_slug"); }catch(e){}
+    state.me = { name: "", slug: "" };
+    state.rsvp = null;
+    state.screen = "name";
+  }
+
+  // ---------- rendering ----------
+
+  function render(){
+    var app = document.getElementById("app");
+    if (state.dbStatus === "loading"){
+      app.innerHTML = '<div class="center-pad"><div class="spinner"></div><p class="hint" style="margin-top:12px;">Loading the guest list&hellip;</p></div>';
+      return;
+    }
+    if (state.dbStatus === "unavailable"){
+      app.innerHTML =
+        '<div class="stack">' +
+          '<h2>Can&rsquo;t connect right now</h2>' +
+          '<p class="hint">The guest list didn&rsquo;t load. Check your connection and give it another try &mdash; your answers aren&rsquo;t lost.</p>' +
+          '<button class="btn btn-primary btn-block" data-action="reload">Try again</button>' +
+        '</div>';
+      return;
+    }
+    if (state.screen === "name") return renderName(app);
+    if (state.screen === "rsvp") return renderRsvp(app);
+    return renderMain(app);
+  }
+
+  function renderName(app){
+    app.innerHTML =
+      '<div class="stack">' +
+        '<h2>First, who\'s this?</h2>' +
+        '<p class="hint">Enter your name so we can save your RSVP &mdash; scan the invite again anytime to change it.</p>' +
+        '<form id="nameForm" class="stack">' +
+          '<div class="field">' +
+            '<label class="label" for="nameInput">Your name</label>' +
+            '<input id="nameInput" type="text" placeholder="e.g. Jamie Rivera" autocomplete="name" required value="' + esc(state.me.name) + '" />' +
+          '</div>' +
+          '<button type="submit" class="btn btn-primary btn-block">Continue</button>' +
+        '</form>' +
+      '</div>';
+    document.getElementById("nameInput").focus();
+  }
+
+  function renderRsvp(app){
+    var status = state.rsvp ? state.rsvp.status : null;
+    var headcount = state.rsvp ? state.rsvp.headcount : state.pendingHeadcount;
+    var chosen = state.pendingStatus || status;
+
+    app.innerHTML =
+      '<div class="stack">' +
+        '<button class="link" data-action="switch-guest">' + ICONS.back + ' Not ' + esc(state.me.name) + '?</button>' +
+        '<h2>Hey ' + esc(state.me.name.split(" ")[0] || state.me.name) + '! Will you make it?</h2>' +
+        '<div class="toggle-pair" role="group" aria-label="RSVP">' +
+          '<button type="button" class="toggle toggle-yes" data-action="pick-status" data-status="yes" aria-pressed="' + (chosen === "yes") + '">Yes, we&rsquo;ll be there</button>' +
+          '<button type="button" class="toggle toggle-no" data-action="pick-status" data-status="no" aria-pressed="' + (chosen === "no") + '">Can&rsquo;t make it</button>' +
+        '</div>' +
+        (chosen === "yes" ?
+          '<div class="field">' +
+            '<label class="label">How many of you (including you)?</label>' +
+            '<div class="stepper">' +
+              '<button type="button" class="stepper__btn" data-action="headcount" data-delta="-1" ' + (headcount<=1?'disabled':'') + '>&minus;</button>' +
+              '<span class="stepper__val">' + headcount + '</span>' +
+              '<button type="button" class="stepper__btn" data-action="headcount" data-delta="1" ' + (headcount>=12?'disabled':'') + '>+</button>' +
+            '</div>' +
+          '</div>'
+          : '') +
+        '<button class="btn btn-primary btn-block" data-action="save-rsvp" ' + (chosen ? '' : 'disabled') + '>Save RSVP</button>' +
+      '</div>';
+  }
+
+  function renderMain(app){
+    var rsvp = state.rsvp;
+    var isYes = rsvp && rsvp.status === "yes";
+    var isNo = rsvp && rsvp.status === "no";
+
+    var summaryText = isYes
+      ? 'You&rsquo;re in &mdash; <b>party of ' + rsvp.headcount + '</b>'
+      : 'You let us know you can&rsquo;t make it';
+
+    var html = '<div class="stack">';
+    html += '<button class="link" data-action="switch-guest">' + ICONS.back + ' Not ' + esc(state.me.name) + '?</button>';
+    html += '<div class="summary-banner"><span class="summary-banner__text">' + summaryText + '</span>' +
+            '<button class="link" data-action="edit-rsvp">Change</button></div>';
+
+    if (isYes){
+      html += '<div>';
+      html += '<div class="section-title">' + ICONS.basket + ' What are you bringing?</div>';
+      html += '<form id="itemForm" class="add-form" style="margin-top:10px;">' +
+        '<input type="text" id="itemLabel" placeholder="e.g. Green bean casserole" required value="' + esc(state.editDraftLabel || "") + '" />' +
+        '<select id="itemCategory">' + CATEGORIES.map(function(c){
+          var sel = (state.editDraftCategory || "main") === c.id ? "selected" : "";
+          return '<option value="' + c.id + '" ' + sel + '>' + c.label + '</option>';
+        }).join("") + '</select>' +
+        '<button type="submit" class="btn btn-primary">' + (state.editingItemId ? "Update" : "Add") + '</button>' +
+        (state.editingItemId ? '<button type="button" class="btn btn-ghost btn-sm" data-action="cancel-edit">Cancel</button>' : '') +
+        '</form>';
+      html += '</div>';
+
+      var mine = state.items.filter(function(i){ return i.bringerSlug === state.me.slug; });
+      if (mine.length){
+        html += '<div class="list">';
+        mine.forEach(function(i){
+          html += itemRow(i, true);
+        });
+        html += '</div>';
+      }
+    } else if (isNo) {
+      html += '<p class="hint">Sorry you&rsquo;ll miss it! You can still peek at what everyone&rsquo;s bringing below.</p>';
+    }
+
+    html += '<hr class="divider" />';
+
+    html += '<div class="section-title">' + ICONS.list + ' Being brought (' + state.items.length + ')</div>';
+    if (state.items.length){
+      var others = state.items.filter(function(i){ return !isYes || i.bringerSlug !== state.me.slug; });
+      html += '<div class="list">';
+      if (!others.length){
+        html += '<p class="empty">Just your item so far &mdash; be the trendsetter.</p>';
+      } else {
+        others.forEach(function(i){ html += itemRow(i, false); });
+      }
+      html += '</div>';
+    } else {
+      html += '<p class="empty">Nobody&rsquo;s claimed a dish yet.</p>';
+    }
+
+    html += '<hr class="divider" />';
+
+    html += '<div class="section-title">Still needed</div>';
+    var neededSorted = state.needed.slice().sort(function(a,b){
+      var ca = isCovered(a) ? 1 : 0, cb = isCovered(b) ? 1 : 0;
+      return ca - cb;
+    });
+    if (neededSorted.length){
+      html += '<div class="list">';
+      neededSorted.forEach(function(n){
+        var covered = isCovered(n);
+        html += '<div class="item ' + (covered ? "item--covered" : "") + '">' +
+          '<span class="chip chip-' + n.category + '">' + catMeta(n.category).label + '</span>' +
+          '<span class="item__label">' + esc(n.label) + '</span>' +
+          (covered ? '<span style="color:var(--primary);display:flex;">' + ICONS.check + '</span>' : '') +
+          (state.isHost ? '<button class="icon-btn" data-action="host-remove-needed" data-id="' + esc(n.id) + '" title="Remove">' + ICONS.trash + '</button>' : '') +
+          '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<p class="empty">Nothing flagged right now &mdash; you&rsquo;re all set!</p>';
+    }
+
+    if (state.isHost){
+      html += '<div class="host-panel">' +
+        '<div class="host-badge">Host mode</div>' +
+        '<form id="neededForm" class="add-form">' +
+          '<input type="text" id="neededLabel" placeholder="Add a needed item" required />' +
+          '<select id="neededCategory">' + CATEGORIES.map(function(c){ return '<option value="' + c.id + '">' + c.label + '</option>'; }).join("") + '</select>' +
+          '<button type="submit" class="btn btn-primary btn-sm">Add</button>' +
+        '</form>' +
+        '<button class="link" data-action="host-exit">Exit host mode</button>' +
+      '</div>';
+    }
+
+    html += '</div>';
+    app.innerHTML = html;
+  }
+
+  function itemRow(i, mine){
+    return '<div class="item ' + (mine ? "item--mine" : "") + '">' +
+      '<span class="chip chip-' + i.category + '">' + catMeta(i.category).label + '</span>' +
+      '<span class="item__label">' + esc(i.label) + (mine ? '' : ' <span class="item__by">&mdash; ' + esc(i.bringerName) + '</span>') + '</span>' +
+      (mine ?
+        '<button class="icon-btn edit" data-action="edit-item" data-id="' + esc(i.id) + '" title="Edit">' + ICONS.pencil + '</button>' +
+        '<button class="icon-btn" data-action="delete-item" data-id="' + esc(i.id) + '" title="Remove">' + ICONS.trash + '</button>'
+        : '') +
+      '</div>';
+  }
+
+  function isCovered(neededItem){
+    var target = neededItem.label.trim().toLowerCase();
+    return state.items.some(function(i){
+      var lbl = i.label.trim().toLowerCase();
+      return lbl === target || lbl.indexOf(target) !== -1 || target.indexOf(lbl) !== -1;
+    });
+  }
+
+  function renderHostToggle(){
+    var wrap = document.getElementById("hostToggleWrap");
+    if (state.dbStatus !== "ready") { wrap.innerHTML = ""; return; }
+    if (state.isHost){ wrap.innerHTML = ""; return; }
+    if (state.showHostLogin){
+      wrap.innerHTML =
+        '<form id="hostForm" class="row" style="justify-content:center;">' +
+          '<input type="password" id="hostPass" placeholder="Host passphrase" style="max-width:160px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border-strong);background:var(--bg);color:var(--text);" />' +
+          '<button type="submit" class="btn btn-ghost btn-sm">Enter</button>' +
+        '</form>' +
+        (state.hostError ? '<div class="hint" style="color:var(--danger);margin-top:6px;">Not quite &mdash; try again.</div>' : '');
+    } else {
+      wrap.innerHTML = '<button class="link" data-action="show-host-login" style="margin:0 auto;">Hosting? Manage the needed list</button>';
+    }
+  }
+
+  function renderAll(){
+    render();
+    renderHostToggle();
+  }
+
+  // ---------- actions ----------
+
+  function pickStatus(status){
+    state.pendingStatus = status;
+    if (status === "no") state.pendingHeadcount = 1;
+    renderAll();
+  }
+
+  function changeHeadcount(delta){
+    var cur = (state.rsvp && state.rsvp.status === "yes") ? state.rsvp.headcount : state.pendingHeadcount;
+    var next = Math.max(1, Math.min(12, cur + delta));
+    if (state.rsvp) state.rsvp.headcount = next;
+    state.pendingHeadcount = next;
+    renderAll();
+  }
+
+  function saveRsvp(){
+    var status = state.pendingStatus || (state.rsvp && state.rsvp.status);
+    if (!status) return;
+    var headcount = status === "yes" ? (state.rsvp ? state.rsvp.headcount : state.pendingHeadcount) : 1;
+    var payload = { name: state.me.name, status: status, headcount: headcount, updatedAt: nowIso() };
+    setDoc(doc(state.db, "rsvps", state.me.slug), payload).then(function(){
+      state.rsvp = payload;
+      state.pendingStatus = null;
+      state.screen = "main";
+      toast("RSVP saved");
+      renderAll();
+    }).catch(function(err){
+      console.error(err);
+      toast("Couldn't save — try again");
+    });
+  }
+
+  function identify(name){
+    name = name.trim();
+    if (!name) return;
+    state.me = { name: name, slug: slugify(name) };
+    saveIdentity();
+    getDoc(doc(state.db, "rsvps", state.me.slug)).then(function(snap){
+      if (snap.exists()){
+        state.rsvp = snap.data();
+        state.pendingHeadcount = state.rsvp.headcount || 1;
+        state.screen = "main";
+      } else {
+        state.rsvp = null;
+        state.pendingStatus = null;
+        state.pendingHeadcount = 1;
+        state.screen = "rsvp";
+      }
+      renderAll();
+    }).catch(function(err){
+      console.error(err);
+      toast("Couldn't reach the guest list — try again");
+    });
+  }
+
+  function submitItem(label, categoryId){
+    label = label.trim();
+    if (!label) return;
+    if (state.editingItemId){
+      updateDoc(doc(state.db, "items", state.editingItemId), { label: label, category: categoryId }).then(function(){
+        state.editingItemId = null;
+        state.editDraftLabel = "";
+        toast("Updated");
+        renderAll();
+      }).catch(function(err){ console.error(err); toast("Couldn't update — try again"); });
+    } else {
+      addDoc(collection(state.db, "items"), {
+        label: label,
+        category: categoryId,
+        bringerSlug: state.me.slug,
+        bringerName: state.me.name,
+        createdAt: nowIso()
+      }).then(function(){
+        toast("Added to the list");
+        renderAll();
+      }).catch(function(err){ console.error(err); toast("Couldn't add — try again"); });
+    }
+  }
+
+  function deleteItem(id){
+    deleteDoc(doc(state.db, "items", id)).then(function(){
+      toast("Removed");
+    }).catch(function(err){ console.error(err); toast("Couldn't remove — try again"); });
+  }
+
+  function startEditItem(id){
+    var i = state.items.filter(function(x){ return x.id === id; })[0];
+    if (!i) return;
+    state.editingItemId = id;
+    state.editDraftLabel = i.label;
+    state.editDraftCategory = i.category;
+    renderAll();
+    var el = document.getElementById("itemLabel");
+    if (el) el.focus();
+  }
+
+  function cancelEdit(){
+    state.editingItemId = null;
+    state.editDraftLabel = "";
+    renderAll();
+  }
+
+  function hostAddNeeded(label, categoryId){
+    label = label.trim();
+    if (!label) return;
+    setDoc(doc(state.db, "needed", slugify(label)), {
+      label: label, category: categoryId, addedAt: nowIso()
+    }).then(function(){ toast("Added to needed list"); }).catch(function(err){ console.error(err); toast("Couldn't save — try again"); });
+  }
+
+  function hostRemoveNeeded(id){
+    deleteDoc(doc(state.db, "needed", id)).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); toast("Couldn't remove — try again"); });
+  }
+
+  function seedNeededIfEmpty(){
+    getDocs(collection(state.db, "needed")).then(function(snap){
+      if (!snap.empty) return;
+      DEFAULT_NEEDED.forEach(function(n){
+        setDoc(doc(state.db, "needed", slugify(n.label)), { label: n.label, category: n.category, addedAt: nowIso() }).catch(function(){});
+      });
+    }).catch(function(err){ console.error(err); });
+  }
+
+  // ---------- events ----------
+
+  document.addEventListener("submit", function(e){
+    if (e.target.id === "nameForm"){
+      e.preventDefault();
+      identify(document.getElementById("nameInput").value);
+    }
+    if (e.target.id === "itemForm"){
+      e.preventDefault();
+      submitItem(document.getElementById("itemLabel").value, document.getElementById("itemCategory").value);
+    }
+    if (e.target.id === "neededForm"){
+      e.preventDefault();
+      hostAddNeeded(document.getElementById("neededLabel").value, document.getElementById("neededCategory").value);
+      e.target.reset();
+    }
+    if (e.target.id === "hostForm"){
+      e.preventDefault();
+      var val = document.getElementById("hostPass").value;
+      if (val === HOST_PASSPHRASE){
+        state.isHost = true;
+        state.showHostLogin = false;
+        state.hostError = false;
+      } else {
+        state.hostError = true;
+      }
+      renderAll();
+    }
+  });
+
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    var action = btn.getAttribute("data-action");
+    if (action === "reload") location.reload();
+    else if (action === "pick-status") pickStatus(btn.getAttribute("data-status"));
+    else if (action === "headcount") changeHeadcount(parseInt(btn.getAttribute("data-delta"), 10));
+    else if (action === "save-rsvp") saveRsvp();
+    else if (action === "switch-guest"){ clearIdentity(); renderAll(); }
+    else if (action === "edit-rsvp"){ state.pendingStatus = state.rsvp ? state.rsvp.status : null; state.screen = "rsvp"; renderAll(); }
+    else if (action === "delete-item") deleteItem(btn.getAttribute("data-id"));
+    else if (action === "edit-item") startEditItem(btn.getAttribute("data-id"));
+    else if (action === "cancel-edit") cancelEdit();
+    else if (action === "host-remove-needed") hostRemoveNeeded(btn.getAttribute("data-id"));
+    else if (action === "show-host-login"){ state.showHostLogin = true; renderHostToggle(); document.getElementById("hostPass").focus(); }
+    else if (action === "host-exit"){ state.isHost = false; state.showHostLogin = false; renderAll(); }
+  });
+
+  // ---------- boot ----------
+
+  function subscribe(){
+    onSnapshot(query(collection(state.db, "items"), orderBy("createdAt", "asc")), function(snap){
+      state.items = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      render();
+    }, function(err){ console.error(err); });
+
+    onSnapshot(collection(state.db, "needed"), function(snap){
+      state.needed = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      render();
+    }, function(err){ console.error(err); });
+  }
+
+  function boot(){
+    renderAll();
+    var app, auth;
+    try{
+      app = initializeApp(firebaseConfig);
+      state.db = getFirestore(app);
+      auth = getAuth(app);
+    }catch(err){
+      console.error(err);
+      state.dbStatus = "unavailable";
+      renderAll();
+      return;
+    }
+    signInAnonymously(auth).catch(function(err){
+      console.error("Anonymous sign-in failed", err);
+    }).then(function(){
+      state.dbStatus = "ready";
+      seedNeededIfEmpty();
+      subscribe();
+      if (loadIdentity()){
+        identify(state.me.name);
+      } else {
+        state.screen = "name";
+        renderAll();
+      }
+    });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
