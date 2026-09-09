@@ -712,7 +712,6 @@ const firebaseConfig = {
     items: [],
     needed: [],
     households: [],
-    guests: [],
     rsvps: [],
     householdMatch: null,
     ambiguousMatches: null,
@@ -799,16 +798,10 @@ const firebaseConfig = {
         '<p class="hint">Which one are you?</p>' +
         '<div class="stack">';
     matches.forEach(function(m){
-      if (m.type === "household"){
-        var others = m.household.members.filter(function(x){ return x !== m.member; }).join(" & ");
-        html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-type="household" data-household="' + esc(m.household.id) + '" data-member="' + esc(m.member) + '">' +
-          esc(m.member) + (others ? ' — with ' + esc(others) : '') +
-          '</button>';
-      } else {
-        html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-type="solo" data-name="' + esc(m.guest.name) + '">' +
-          esc(m.guest.name) +
-          '</button>';
-      }
+      var others = m.household.members.filter(function(x){ return x !== m.member; }).join(" & ");
+      html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-household="' + esc(m.household.id) + '" data-member="' + esc(m.member) + '">' +
+        esc(m.member) + (others ? ' — with ' + esc(others) : '') +
+        '</button>';
     });
     html +=
       '</div>' +
@@ -995,7 +988,9 @@ const firebaseConfig = {
             ? ' <span class="item__by">party of ' + r.headcount + '</span>'
             : ' <span class="item__by">can&rsquo;t make it</span>') +
           (r.status === "yes" && r.dietary ? '<br><span class="item__by">' + esc(r.dietary) + '</span>' : '') +
-          '</span></div>';
+          '</span>' +
+          '<button class="icon-btn" data-action="host-delete-rsvp" data-id="' + esc(r.id) + '" data-name="' + esc(r.name) + '" title="Remove RSVP">' + ICONS.trash + '</button>' +
+          '</div>';
       });
       html += '</div>';
     } else {
@@ -1004,21 +999,19 @@ const firebaseConfig = {
 
     html += '<hr class="divider" />';
 
-    html += '<div class="section-title">Guest list</div>';
-    html += '<p class="hint">Only names on this list (solo below, or in a couple further down) can RSVP &mdash; keeps out typos and randoms.</p>';
-    html += '<form id="guestForm" class="add-form">' +
-      '<input type="text" id="guestName" placeholder="Full name (First Last)" required />' +
-      '<button type="submit" class="btn btn-primary btn-sm">Add</button>' +
-    '</form>';
-    if (state.guests.length){
+    html += '<div class="section-title">' + ICONS.list + ' Dishes being brought</div>';
+    if (state.items.length){
       html += '<div class="list">';
-      state.guests.slice().sort(function(a,b){ return (a.name||"").localeCompare(b.name||""); }).forEach(function(g){
-        html += '<div class="item"><span class="item__label">' + esc(g.name) + '</span>' +
-          '<button class="icon-btn" data-action="host-remove-guest" data-id="' + esc(g.id) + '" title="Remove">' + ICONS.trash + '</button></div>';
+      state.items.forEach(function(i){
+        html += '<div class="item">' +
+          '<span class="chip chip-' + i.category + '">' + catMeta(i.category).label + '</span>' +
+          '<span class="item__label">' + esc(i.label) + ' <span class="item__by">&mdash; ' + esc(i.bringerName) + '</span></span>' +
+          '<button class="icon-btn" data-action="host-delete-item" data-id="' + esc(i.id) + '" data-label="' + esc(i.label) + '" title="Remove dish">' + ICONS.trash + '</button>' +
+          '</div>';
       });
       html += '</div>';
     } else {
-      html += '<p class="empty">No solo guests added yet.</p>';
+      html += '<p class="empty">Nobody&rsquo;s claimed a dish yet.</p>';
     }
 
     html += '<hr class="divider" />';
@@ -1045,22 +1038,22 @@ const firebaseConfig = {
 
     html += '<hr class="divider" />';
 
-    html += '<div class="section-title">Couples &amp; households</div>';
-    html += '<p class="hint">Add a couple so either partner can RSVP for both at once when they enter either name. Use full names (First Last) &mdash; if two guests share a first name, we need the last name to tell them apart.</p>';
+    html += '<div class="section-title">Guest list</div>';
+    html += '<p class="hint">Only names on this list can RSVP &mdash; keeps out typos and randoms. Add anyone invited: fill just the first field for a solo guest, or both for a couple (either partner can then RSVP for both). Use full names &mdash; if two guests share a first name, we need the last name to tell them apart.</p>';
     html += '<form id="householdForm" class="add-form">' +
-      '<input type="text" id="hhMember1" placeholder="First person (full name)" required style="flex:1 1 120px;" />' +
-      '<input type="text" id="hhMember2" placeholder="Second person (full name)" required style="flex:1 1 120px;" />' +
+      '<input type="text" id="hhMember1" placeholder="Guest name (full name)" required style="flex:1 1 120px;" />' +
+      '<input type="text" id="hhMember2" placeholder="Partner (optional)" style="flex:1 1 120px;" />' +
       '<button type="submit" class="btn btn-primary btn-sm">Add</button>' +
     '</form>';
     if (state.households.length){
       html += '<div class="list">';
-      state.households.forEach(function(h){
+      state.households.slice().sort(function(a,b){ return (a.label||"").localeCompare(b.label||""); }).forEach(function(h){
         html += '<div class="item"><span class="item__label">' + esc(h.label) + '</span>' +
           '<button class="icon-btn" data-action="host-remove-household" data-id="' + esc(h.id) + '" title="Remove">' + ICONS.trash + '</button></div>';
       });
       html += '</div>';
     } else {
-      html += '<p class="empty">No couples added yet.</p>';
+      html += '<p class="empty">Nobody added yet.</p>';
     }
 
     html += '<button class="link" data-action="host-exit" style="margin-top:6px;">Exit host mode</button>';
@@ -1178,37 +1171,38 @@ const firebaseConfig = {
     });
   }
 
-  // Matches a typed name against every household member — on the exact
-  // string OR just the first name, since guests often type only a first
-  // name while households are best stored with full names. Returns every
-  // {household, member} hit, so a name shared across two different
-  // households (two "Mike"s) surfaces both instead of silently picking one.
-  // The guest list is the union of every household member and every solo
-  // "guests" entry. A typed name matches on the exact string OR just the
-  // first name (guests often type only a first name). Returns every hit —
-  // zero means "not on the list" (blocked), one resolves straight through,
-  // more than one (a shared first name) triggers the disambiguation screen.
+  // The guest list IS the households collection — a household is 1 name
+  // (solo guest) or 2 (a couple, either can RSVP for both). Matches on the
+  // exact string OR just the first name, since guests often type only a
+  // first name. Zero matches blocks the RSVP; more than one (a shared
+  // first name) triggers the disambiguation screen.
   function findIdentityCandidates(name){
     var norm = name.trim().toLowerCase();
     var matches = [];
     state.households.forEach(function(h){
-      if (!h.members || h.members.length < 2) return;
+      if (!h.members || h.members.length < 1) return;
       h.members.forEach(function(m){
         var memberNorm = (m || "").trim().toLowerCase();
         var firstTok = memberNorm.split(/\s+/)[0];
         if (memberNorm === norm || firstTok === norm){
-          matches.push({ type: "household", household: h, member: m });
+          matches.push({ household: h, member: m });
         }
       });
     });
-    state.guests.forEach(function(g){
-      var guestNorm = (g.name || "").trim().toLowerCase();
-      var firstTok = guestNorm.split(/\s+/)[0];
-      if (guestNorm === norm || firstTok === norm){
-        matches.push({ type: "solo", guest: g });
-      }
-    });
     return matches;
+  }
+
+  // A 1-member household has no "just you or the whole household" choice
+  // to make — it resolves straight through. A 2-member household still
+  // asks.
+  function enterHousehold(h, member){
+    if (h.members.length > 1){
+      state.householdMatch = { household: h, typedName: member };
+      state.screen = "household-prompt";
+      renderAll();
+    } else {
+      resolveIdentity(h.label, h.id, 1);
+    }
   }
 
   function checkGuestListAndIdentify(name){
@@ -1220,14 +1214,7 @@ const firebaseConfig = {
       state.screen = "not-on-list";
       renderAll();
     } else if (matches.length === 1){
-      var m = matches[0];
-      if (m.type === "household"){
-        state.householdMatch = { household: m.household, typedName: m.member };
-        state.screen = "household-prompt";
-        renderAll();
-      } else {
-        resolveIdentity(m.guest.name, slugify(m.guest.name), 1);
-      }
+      enterHousehold(matches[0].household, matches[0].member);
     } else {
       state.ambiguousMatches = { typedName: name, matches: matches };
       state.screen = "disambiguate-prompt";
@@ -1236,17 +1223,10 @@ const firebaseConfig = {
   }
 
   function handleDisambiguateChoice(btn){
-    var type = btn.getAttribute("data-type");
+    var h = state.households.filter(function(x){ return x.id === btn.getAttribute("data-household"); })[0];
     state.ambiguousMatches = null;
-    if (type === "household"){
-      var h = state.households.filter(function(x){ return x.id === btn.getAttribute("data-household"); })[0];
-      if (!h) return;
-      state.householdMatch = { household: h, typedName: btn.getAttribute("data-member") };
-      state.screen = "household-prompt";
-      renderAll();
-    } else {
-      resolveIdentity(btn.getAttribute("data-name"), slugify(btn.getAttribute("data-name")), 1);
-    }
+    if (!h) return;
+    enterHousehold(h, btn.getAttribute("data-member"));
   }
 
   function handleHouseholdChoice(choice){
@@ -1367,15 +1347,20 @@ const firebaseConfig = {
     }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
+  // A household is 1 or 2 full names: 1 for a solo guest, 2 for a couple
+  // (either partner can then RSVP for both). This is the single, unified
+  // guest list — there is no separate solo-guest collection.
   function hostAddHousehold(m1, m2){
-    m1 = m1.trim(); m2 = m2.trim();
-    if (!m1 || !m2) return;
-    var label = m1 + " & " + m2;
+    m1 = (m1 || "").trim();
+    m2 = (m2 || "").trim();
+    if (!m1) return;
+    var members = m2 ? [m1, m2] : [m1];
+    var label = m2 ? (m1 + " & " + m2) : m1;
     authReady.then(function(){
       return setDoc(doc(state.db, "households", slugify(label)), {
-        members: [m1, m2], label: label, addedAt: nowIso()
+        members: members, label: label, addedAt: nowIso()
       });
-    }).then(function(){ toast("Household added"); }).catch(function(err){ console.error(err); writeFailToast(err); });
+    }).then(function(){ toast("Added to guest list"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function hostRemoveHousehold(id){
@@ -1384,17 +1369,17 @@ const firebaseConfig = {
     }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
-  function hostAddGuest(name){
-    name = name.trim();
-    if (!name) return;
+  function hostDeleteRsvp(slug, name){
+    if (!window.confirm("Remove " + name + "’s RSVP? This can’t be undone.")) return;
     authReady.then(function(){
-      return setDoc(doc(state.db, "guests", slugify(name)), { name: name, addedAt: nowIso() });
-    }).then(function(){ toast("Added to guest list"); }).catch(function(err){ console.error(err); writeFailToast(err); });
+      return deleteDoc(doc(state.db, "rsvps", slug));
+    }).then(function(){ toast("RSVP removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
-  function hostRemoveGuest(id){
+  function hostDeleteItem(id, label){
+    if (!window.confirm('Remove "' + label + '" from the list?')) return;
     authReady.then(function(){
-      return deleteDoc(doc(state.db, "guests", id));
+      return deleteDoc(doc(state.db, "items", id));
     }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
@@ -1434,11 +1419,6 @@ const firebaseConfig = {
       hostAddHousehold(document.getElementById("hhMember1").value, document.getElementById("hhMember2").value);
       e.target.reset();
     }
-    if (e.target.id === "guestForm"){
-      e.preventDefault();
-      hostAddGuest(document.getElementById("guestName").value);
-      e.target.reset();
-    }
     if (e.target.id === "hostForm"){
       e.preventDefault();
       var val = document.getElementById("hostPass").value;
@@ -1470,7 +1450,8 @@ const firebaseConfig = {
     else if (action === "claim-needed") claimNeededItem(btn.getAttribute("data-label"), btn.getAttribute("data-category"));
     else if (action === "host-remove-needed") hostRemoveNeeded(btn.getAttribute("data-id"));
     else if (action === "host-remove-household") hostRemoveHousehold(btn.getAttribute("data-id"));
-    else if (action === "host-remove-guest") hostRemoveGuest(btn.getAttribute("data-id"));
+    else if (action === "host-delete-rsvp") hostDeleteRsvp(btn.getAttribute("data-id"), btn.getAttribute("data-name"));
+    else if (action === "host-delete-item") hostDeleteItem(btn.getAttribute("data-id"), btn.getAttribute("data-label"));
     else if (action === "household-choice") handleHouseholdChoice(btn.getAttribute("data-choice"));
     else if (action === "disambiguate-choice") handleDisambiguateChoice(btn);
     else if (action === "retry-not-on-list") retryNotOnList();
@@ -1496,11 +1477,6 @@ const firebaseConfig = {
 
     onSnapshot(collection(state.db, "households"), function(snap){
       state.households = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
-      render();
-    }, function(err){ console.error(err); });
-
-    onSnapshot(collection(state.db, "guests"), function(snap){
-      state.guests = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
       render();
     }, function(err){ console.error(err); });
 
