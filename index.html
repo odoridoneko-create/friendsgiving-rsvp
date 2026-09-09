@@ -183,17 +183,46 @@
     font-size: .85rem;
     color: var(--text-muted);
   }
-  .countdown-badge{
+  .countdown-card{
     align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-top: 2px;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: var(--bg-stripe);
-    border: 1px solid var(--border);
-    font-size: .78rem;
+    padding: 12px 20px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--pumpkin) 0%, var(--gold) 55%, var(--pumpkin-deep) 100%);
+    box-shadow: var(--shadow);
+    color: var(--chip-dessert-ink);
+  }
+  .countdown-card__icon{
+    flex-shrink: 0;
+    display: flex;
+    animation: leaf-bob 2.6s ease-in-out infinite;
+  }
+  @keyframes leaf-bob{
+    0%, 100%{ transform: rotate(-6deg) translateY(0); }
+    50%{ transform: rotate(6deg) translateY(-3px); }
+  }
+  .countdown-card__text{ display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+  .countdown-card__num{
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown-card__label{
+    font-size: .74rem;
     font-weight: 700;
-    color: var(--accent-hover);
-    letter-spacing: .02em;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    opacity: .85;
+  }
+  .countdown-card--noNum .countdown-card__label{
+    font-size: .95rem;
+    text-transform: none;
+    letter-spacing: 0;
   }
   .banner__actions{
     display: flex;
@@ -371,6 +400,18 @@
   .item--covered{ opacity: .55; }
   .item--covered .item__label{ text-decoration: line-through; }
   .item--mine{ border-color: var(--border-strong); }
+  .item--claimable{
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: background .12s ease, transform .08s ease;
+  }
+  .item--claimable:hover{ background: var(--bg-stripe); border-color: var(--border-strong); }
+  .item--claimable:active{ transform: scale(.98); }
+  .item__claim{ color: var(--primary); display: flex; flex-shrink: 0; }
 
   .chip{
     font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
@@ -506,7 +547,9 @@ const firebaseConfig = {
     calendar: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/></svg>',
     pin: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
     car: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14"/><path d="M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M23 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none"/><path d="M3 17v-4l2-5a2 2 0 0 1 1.9-1.3h10.2A2 2 0 0 1 19 7.7l2 5.3v4"/><path d="M3 13h18"/></svg>',
-    close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    leaf: '<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c-4 3-9 8-9 13a6 6 0 0 0 11 3c3-2 6-7 7-14-3 1-6 1-9-2Z"/><path d="M12 22V9" stroke="var(--chip-dessert-ink)" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".55"/></svg>'
   };
 
   var EVENT_START = new Date("2026-11-14T17:00:00-05:00");
@@ -560,15 +603,15 @@ const firebaseConfig = {
   function directionsUrl(){
     return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(EVENT_ADDRESS);
   }
-  function countdownText(){
+  function countdownInfo(){
     var today = new Date();
     var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     var eventMid = new Date(EVENT_START.getFullYear(), EVENT_START.getMonth(), EVENT_START.getDate());
     var diffDays = Math.round((eventMid - todayMid) / 86400000);
-    if (diffDays > 1) return diffDays + " days to go";
-    if (diffDays === 1) return "Tomorrow!";
-    if (diffDays === 0) return "Today's the day!";
-    return "Hope you had a great Friendsgiving!";
+    if (diffDays > 1) return { big: String(diffDays), label: "days till the feast" };
+    if (diffDays === 1) return { big: "1", label: "day till the feast!" };
+    if (diffDays === 0) return { big: null, label: "Today's the day! Gobble gobble." };
+    return { big: null, label: "Hope you had a great Friendsgiving!" };
   }
 
   var toastTimer = null;
@@ -669,9 +712,11 @@ const firebaseConfig = {
     items: [],
     needed: [],
     households: [],
+    guests: [],
     rsvps: [],
     householdMatch: null,
     ambiguousMatches: null,
+    notOnListName: "",
     editingItemId: null,
     isHost: false,
     hostError: false,
@@ -721,6 +766,7 @@ const firebaseConfig = {
     }
     if (state.isHost) return renderHost(app);
     if (state.screen === "name") return renderName(app);
+    if (state.screen === "not-on-list") return renderNotOnList(app);
     if (state.screen === "disambiguate-prompt") return renderDisambiguate(app);
     if (state.screen === "household-prompt") return renderHouseholdPrompt(app);
     if (state.screen === "rsvp") return renderRsvp(app);
@@ -753,16 +799,37 @@ const firebaseConfig = {
         '<p class="hint">Which one are you?</p>' +
         '<div class="stack">';
     matches.forEach(function(m){
-      var others = m.household.members.filter(function(x){ return x !== m.member; }).join(" & ");
-      html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-household="' + esc(m.household.id) + '" data-member="' + esc(m.member) + '">' +
-        esc(m.member) + (others ? ' — with ' + esc(others) : '') +
-        '</button>';
+      if (m.type === "household"){
+        var others = m.household.members.filter(function(x){ return x !== m.member; }).join(" & ");
+        html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-type="household" data-household="' + esc(m.household.id) + '" data-member="' + esc(m.member) + '">' +
+          esc(m.member) + (others ? ' — with ' + esc(others) : '') +
+          '</button>';
+      } else {
+        html += '<button class="btn btn-ghost btn-block" data-action="disambiguate-choice" data-type="solo" data-name="' + esc(m.guest.name) + '">' +
+          esc(m.guest.name) +
+          '</button>';
+      }
     });
     html +=
-        '<button class="btn btn-ghost btn-block" data-action="disambiguate-none">None of these — continue as ' + esc(typed) + '</button>' +
       '</div>' +
     '</div>';
     app.innerHTML = html;
+  }
+
+  function renderNotOnList(app){
+    app.innerHTML =
+      '<div class="stack">' +
+        '<h2>Hmm, we don&rsquo;t see ' + esc(state.notOnListName) + ' on our list</h2>' +
+        '<p class="hint">Double-check the spelling, or reach out to Annie &amp; John if you think this is a mistake.</p>' +
+        '<button class="btn btn-primary btn-block" data-action="retry-not-on-list">Try again</button>' +
+      '</div>';
+  }
+
+  function retryNotOnList(){
+    state.me = { name: state.notOnListName, slug: "" };
+    state.notOnListName = "";
+    state.screen = "name";
+    renderAll();
   }
 
   function renderHouseholdPrompt(app){
@@ -826,7 +893,14 @@ const firebaseConfig = {
             '<button class="link" data-action="edit-rsvp">Change</button></div>';
 
     if (isYes){
-      html += '<div class="countdown-badge">' + esc(countdownText()) + '</div>';
+      var cd = countdownInfo();
+      html += '<div class="countdown-card' + (cd.big ? '' : ' countdown-card--noNum') + '">' +
+        '<span class="countdown-card__icon">' + ICONS.leaf + '</span>' +
+        '<div class="countdown-card__text">' +
+          (cd.big ? '<span class="countdown-card__num">' + esc(cd.big) + '</span>' : '') +
+          '<span class="countdown-card__label">' + esc(cd.label) + '</span>' +
+        '</div>' +
+      '</div>';
       html += '<div class="banner__actions">' +
         '<button class="btn btn-ghost btn-sm" data-action="add-calendar">Add to Calendar</button>' +
         '<a class="btn btn-ghost btn-sm" href="' + esc(directionsUrl()) + '" target="_blank" rel="noopener">Get Directions</a>' +
@@ -879,11 +953,16 @@ const firebaseConfig = {
       html += '<div class="list">';
       neededSorted.forEach(function(n){
         var covered = isCovered(n);
-        html += '<div class="item ' + (covered ? "item--covered" : "") + '">' +
-          '<span class="chip chip-' + n.category + '">' + catMeta(n.category).label + '</span>' +
+        var claimable = isYes && !covered;
+        var inner = '<span class="chip chip-' + n.category + '">' + catMeta(n.category).label + '</span>' +
           '<span class="item__label">' + esc(n.label) + '</span>' +
           (covered ? '<span style="color:var(--primary);display:flex;">' + ICONS.check + '</span>' : '') +
-          '</div>';
+          (claimable ? '<span class="item__claim">' + ICONS.plus + '</span>' : '');
+        if (claimable){
+          html += '<button type="button" class="item item--claimable" data-action="claim-needed" data-label="' + esc(n.label) + '" data-category="' + esc(n.category) + '">' + inner + '</button>';
+        } else {
+          html += '<div class="item ' + (covered ? "item--covered" : "") + '">' + inner + '</div>';
+        }
       });
       html += '</div>';
     } else {
@@ -921,6 +1000,25 @@ const firebaseConfig = {
       html += '</div>';
     } else {
       html += '<p class="empty">No responses yet.</p>';
+    }
+
+    html += '<hr class="divider" />';
+
+    html += '<div class="section-title">Guest list</div>';
+    html += '<p class="hint">Only names on this list (solo below, or in a couple further down) can RSVP &mdash; keeps out typos and randoms.</p>';
+    html += '<form id="guestForm" class="add-form">' +
+      '<input type="text" id="guestName" placeholder="Full name (First Last)" required />' +
+      '<button type="submit" class="btn btn-primary btn-sm">Add</button>' +
+    '</form>';
+    if (state.guests.length){
+      html += '<div class="list">';
+      state.guests.slice().sort(function(a,b){ return (a.name||"").localeCompare(b.name||""); }).forEach(function(g){
+        html += '<div class="item"><span class="item__label">' + esc(g.name) + '</span>' +
+          '<button class="icon-btn" data-action="host-remove-guest" data-id="' + esc(g.id) + '" title="Remove">' + ICONS.trash + '</button></div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<p class="empty">No solo guests added yet.</p>';
     }
 
     html += '<hr class="divider" />';
@@ -1085,7 +1183,12 @@ const firebaseConfig = {
   // name while households are best stored with full names. Returns every
   // {household, member} hit, so a name shared across two different
   // households (two "Mike"s) surfaces both instead of silently picking one.
-  function findMemberMatches(name){
+  // The guest list is the union of every household member and every solo
+  // "guests" entry. A typed name matches on the exact string OR just the
+  // first name (guests often type only a first name). Returns every hit —
+  // zero means "not on the list" (blocked), one resolves straight through,
+  // more than one (a shared first name) triggers the disambiguation screen.
+  function findIdentityCandidates(name){
     var norm = name.trim().toLowerCase();
     var matches = [];
     state.households.forEach(function(h){
@@ -1094,23 +1197,37 @@ const firebaseConfig = {
         var memberNorm = (m || "").trim().toLowerCase();
         var firstTok = memberNorm.split(/\s+/)[0];
         if (memberNorm === norm || firstTok === norm){
-          matches.push({ household: h, member: m });
+          matches.push({ type: "household", household: h, member: m });
         }
       });
+    });
+    state.guests.forEach(function(g){
+      var guestNorm = (g.name || "").trim().toLowerCase();
+      var firstTok = guestNorm.split(/\s+/)[0];
+      if (guestNorm === norm || firstTok === norm){
+        matches.push({ type: "solo", guest: g });
+      }
     });
     return matches;
   }
 
-  function checkHouseholdOrIdentify(name){
+  function checkGuestListAndIdentify(name){
     name = (name || "").trim();
     if (!name) return;
-    var matches = findMemberMatches(name);
+    var matches = findIdentityCandidates(name);
     if (matches.length === 0){
-      identify(name);
-    } else if (matches.length === 1){
-      state.householdMatch = { household: matches[0].household, typedName: matches[0].member };
-      state.screen = "household-prompt";
+      state.notOnListName = name;
+      state.screen = "not-on-list";
       renderAll();
+    } else if (matches.length === 1){
+      var m = matches[0];
+      if (m.type === "household"){
+        state.householdMatch = { household: m.household, typedName: m.member };
+        state.screen = "household-prompt";
+        renderAll();
+      } else {
+        resolveIdentity(m.guest.name, slugify(m.guest.name), 1);
+      }
     } else {
       state.ambiguousMatches = { typedName: name, matches: matches };
       state.screen = "disambiguate-prompt";
@@ -1118,19 +1235,18 @@ const firebaseConfig = {
     }
   }
 
-  function handleDisambiguateChoice(householdId, memberName){
-    var h = state.households.filter(function(x){ return x.id === householdId; })[0];
-    if (!h) return;
-    state.householdMatch = { household: h, typedName: memberName };
+  function handleDisambiguateChoice(btn){
+    var type = btn.getAttribute("data-type");
     state.ambiguousMatches = null;
-    state.screen = "household-prompt";
-    renderAll();
-  }
-
-  function handleDisambiguateNone(){
-    var typed = state.ambiguousMatches ? state.ambiguousMatches.typedName : "";
-    state.ambiguousMatches = null;
-    identify(typed);
+    if (type === "household"){
+      var h = state.households.filter(function(x){ return x.id === btn.getAttribute("data-household"); })[0];
+      if (!h) return;
+      state.householdMatch = { household: h, typedName: btn.getAttribute("data-member") };
+      state.screen = "household-prompt";
+      renderAll();
+    } else {
+      resolveIdentity(btn.getAttribute("data-name"), slugify(btn.getAttribute("data-name")), 1);
+    }
   }
 
   function handleHouseholdChoice(choice){
@@ -1142,12 +1258,6 @@ const firebaseConfig = {
       resolveIdentity(typed, slugify(typed), 1);
     }
     state.householdMatch = null;
-  }
-
-  function identify(name){
-    name = name.trim();
-    if (!name) return;
-    resolveIdentity(name, slugify(name), 1);
   }
 
   function resolveIdentity(name, slug, defaultHeadcount){
@@ -1228,6 +1338,19 @@ const firebaseConfig = {
     renderAll();
   }
 
+  // Pre-fills the "what are you bringing" form from a tapped Still Needed
+  // row instead of re-rendering, so it doesn't disturb anything else on
+  // screen — just fills, scrolls, and focuses for a fast one-tap claim.
+  function claimNeededItem(label, categoryId){
+    var labelInput = document.getElementById("itemLabel");
+    var catSelect = document.getElementById("itemCategory");
+    if (!labelInput || !catSelect) return;
+    labelInput.value = label;
+    catSelect.value = categoryId;
+    labelInput.scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth", block: "center" });
+    labelInput.focus();
+  }
+
   function hostAddNeeded(label, categoryId){
     label = label.trim();
     if (!label) return;
@@ -1261,6 +1384,20 @@ const firebaseConfig = {
     }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
+  function hostAddGuest(name){
+    name = name.trim();
+    if (!name) return;
+    authReady.then(function(){
+      return setDoc(doc(state.db, "guests", slugify(name)), { name: name, addedAt: nowIso() });
+    }).then(function(){ toast("Added to guest list"); }).catch(function(err){ console.error(err); writeFailToast(err); });
+  }
+
+  function hostRemoveGuest(id){
+    authReady.then(function(){
+      return deleteDoc(doc(state.db, "guests", id));
+    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
+  }
+
   function seedNeededIfEmpty(){
     getDocs(collection(state.db, "needed")).then(function(snap){
       if (!snap.empty) return;
@@ -1281,7 +1418,7 @@ const firebaseConfig = {
   document.addEventListener("submit", function(e){
     if (e.target.id === "nameForm"){
       e.preventDefault();
-      checkHouseholdOrIdentify(document.getElementById("nameInput").value);
+      checkGuestListAndIdentify(document.getElementById("nameInput").value);
     }
     if (e.target.id === "itemForm"){
       e.preventDefault();
@@ -1295,6 +1432,11 @@ const firebaseConfig = {
     if (e.target.id === "householdForm"){
       e.preventDefault();
       hostAddHousehold(document.getElementById("hhMember1").value, document.getElementById("hhMember2").value);
+      e.target.reset();
+    }
+    if (e.target.id === "guestForm"){
+      e.preventDefault();
+      hostAddGuest(document.getElementById("guestName").value);
       e.target.reset();
     }
     if (e.target.id === "hostForm"){
@@ -1325,11 +1467,13 @@ const firebaseConfig = {
     else if (action === "delete-item") deleteItem(btn.getAttribute("data-id"));
     else if (action === "edit-item") startEditItem(btn.getAttribute("data-id"));
     else if (action === "cancel-edit") cancelEdit();
+    else if (action === "claim-needed") claimNeededItem(btn.getAttribute("data-label"), btn.getAttribute("data-category"));
     else if (action === "host-remove-needed") hostRemoveNeeded(btn.getAttribute("data-id"));
     else if (action === "host-remove-household") hostRemoveHousehold(btn.getAttribute("data-id"));
+    else if (action === "host-remove-guest") hostRemoveGuest(btn.getAttribute("data-id"));
     else if (action === "household-choice") handleHouseholdChoice(btn.getAttribute("data-choice"));
-    else if (action === "disambiguate-choice") handleDisambiguateChoice(btn.getAttribute("data-household"), btn.getAttribute("data-member"));
-    else if (action === "disambiguate-none") handleDisambiguateNone();
+    else if (action === "disambiguate-choice") handleDisambiguateChoice(btn);
+    else if (action === "retry-not-on-list") retryNotOnList();
     else if (action === "show-host-login"){ state.showHostLogin = true; renderHostToggle(); document.getElementById("hostPass").focus(); }
     else if (action === "host-exit"){ state.isHost = false; state.showHostLogin = false; renderAll(); }
     else if (action === "add-calendar") downloadCalendarInvite();
@@ -1352,6 +1496,11 @@ const firebaseConfig = {
 
     onSnapshot(collection(state.db, "households"), function(snap){
       state.households = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      render();
+    }, function(err){ console.error(err); });
+
+    onSnapshot(collection(state.db, "guests"), function(snap){
+      state.guests = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
       render();
     }, function(err){ console.error(err); });
 
