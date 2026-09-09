@@ -455,8 +455,17 @@ const firebaseConfig = {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2200);
   }
-  function writeFailToast(){
-    toast("Couldn't save — a browser extension may be blocking it. Try a different browser.");
+  function writeFailToast(err){
+    var code = err && err.code;
+    if (code === "permission-denied"){
+      toast("Couldn't save — Firestore rules or sign-in aren't set up right (permission-denied)");
+    } else if (code === "unavailable" || /network/i.test((err && err.message) || "")){
+      toast("Couldn't save — check your connection and try again");
+    } else if (code) {
+      toast("Couldn't save — error: " + code);
+    } else {
+      toast("Couldn't save — try again");
+    }
   }
 
   // Resolves once anonymous sign-in settles OR after `ms`, whichever comes
@@ -826,7 +835,7 @@ const firebaseConfig = {
       renderAll();
     }).catch(function(err){
       console.error(err);
-      writeFailToast();
+      writeFailToast(err);
     });
   }
 
@@ -904,7 +913,7 @@ const firebaseConfig = {
         state.editDraftLabel = "";
         toast("Updated");
         renderAll();
-      }).catch(function(err){ console.error(err); writeFailToast(); });
+      }).catch(function(err){ console.error(err); writeFailToast(err); });
     } else {
       authReady.then(function(){
         return addDoc(collection(state.db, "items"), {
@@ -917,7 +926,7 @@ const firebaseConfig = {
       }).then(function(){
         toast("Added to the list");
         renderAll();
-      }).catch(function(err){ console.error(err); writeFailToast(); });
+      }).catch(function(err){ console.error(err); writeFailToast(err); });
     }
   }
 
@@ -926,7 +935,7 @@ const firebaseConfig = {
       return deleteDoc(doc(state.db, "items", id));
     }).then(function(){
       toast("Removed");
-    }).catch(function(err){ console.error(err); writeFailToast(); });
+    }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function startEditItem(id){
@@ -953,13 +962,13 @@ const firebaseConfig = {
       return setDoc(doc(state.db, "needed", slugify(label)), {
         label: label, category: categoryId, addedAt: nowIso()
       });
-    }).then(function(){ toast("Added to needed list"); }).catch(function(err){ console.error(err); writeFailToast(); });
+    }).then(function(){ toast("Added to needed list"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function hostRemoveNeeded(id){
     authReady.then(function(){
       return deleteDoc(doc(state.db, "needed", id));
-    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(); });
+    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function hostAddHousehold(m1, m2){
@@ -970,13 +979,13 @@ const firebaseConfig = {
       return setDoc(doc(state.db, "households", slugify(label)), {
         members: [m1, m2], label: label, addedAt: nowIso()
       });
-    }).then(function(){ toast("Household added"); }).catch(function(err){ console.error(err); writeFailToast(); });
+    }).then(function(){ toast("Household added"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function hostRemoveHousehold(id){
     authReady.then(function(){
       return deleteDoc(doc(state.db, "households", id));
-    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(); });
+    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(err); });
   }
 
   function seedNeededIfEmpty(){
