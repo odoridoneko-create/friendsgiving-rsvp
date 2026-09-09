@@ -926,6 +926,7 @@ const firebaseConfig = {
 
       html += '<div>';
       html += '<div class="section-title">' + ICONS.basket + ' What are you bringing?</div>';
+      html += '<p class="hint" style="margin-top:4px;">Needed items are listed below, but feel free to bring whatever you&rsquo;d like!</p>';
       html += '<form id="itemForm" class="add-form" style="margin-top:10px;">' +
         '<input type="text" id="itemLabel" placeholder="e.g. Green bean casserole" required value="' + esc(state.editDraftLabel || "") + '" />' +
         '<select id="itemCategory">' + CATEGORIES.map(function(c){
