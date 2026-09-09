@@ -455,6 +455,28 @@ const firebaseConfig = {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2200);
   }
+  function writeFailToast(){
+    toast("Couldn't save — a browser extension may be blocking it. Try a different browser.");
+  }
+
+  // Resolves once anonymous sign-in settles OR after `ms`, whichever comes
+  // first — so a blocked/hanging auth request can never freeze the app.
+  // Reads never depend on this (Firestore rules allow open reads); only
+  // writes await it, and a write attempted before/without auth simply fails
+  // with a clear error instead of hanging the whole page.
+  function withTimeout(promise, ms){
+    return new Promise(function(resolve){
+      var done = false;
+      var timer = setTimeout(function(){ if (!done){ done = true; resolve(); } }, ms);
+      promise.then(function(){
+        if (!done){ done = true; clearTimeout(timer); resolve(); }
+      }).catch(function(err){
+        console.error("Anonymous sign-in failed", err);
+        if (!done){ done = true; clearTimeout(timer); resolve(); }
+      });
+    });
+  }
+  var authReady = Promise.resolve();
 
   var state = {
     db: null,
@@ -794,7 +816,9 @@ const firebaseConfig = {
     if (!status) return;
     var headcount = status === "yes" ? (state.rsvp ? state.rsvp.headcount : state.pendingHeadcount) : 1;
     var payload = { name: state.me.name, status: status, headcount: headcount, updatedAt: nowIso() };
-    setDoc(doc(state.db, "rsvps", state.me.slug), payload).then(function(){
+    authReady.then(function(){
+      return setDoc(doc(state.db, "rsvps", state.me.slug), payload);
+    }).then(function(){
       state.rsvp = payload;
       state.pendingStatus = null;
       state.screen = "main";
@@ -802,7 +826,7 @@ const firebaseConfig = {
       renderAll();
     }).catch(function(err){
       console.error(err);
-      toast("Couldn't save — try again");
+      writeFailToast();
     });
   }
 
@@ -873,30 +897,36 @@ const firebaseConfig = {
     label = label.trim();
     if (!label) return;
     if (state.editingItemId){
-      updateDoc(doc(state.db, "items", state.editingItemId), { label: label, category: categoryId }).then(function(){
+      authReady.then(function(){
+        return updateDoc(doc(state.db, "items", state.editingItemId), { label: label, category: categoryId });
+      }).then(function(){
         state.editingItemId = null;
         state.editDraftLabel = "";
         toast("Updated");
         renderAll();
-      }).catch(function(err){ console.error(err); toast("Couldn't update — try again"); });
+      }).catch(function(err){ console.error(err); writeFailToast(); });
     } else {
-      addDoc(collection(state.db, "items"), {
-        label: label,
-        category: categoryId,
-        bringerSlug: state.me.slug,
-        bringerName: state.me.name,
-        createdAt: nowIso()
+      authReady.then(function(){
+        return addDoc(collection(state.db, "items"), {
+          label: label,
+          category: categoryId,
+          bringerSlug: state.me.slug,
+          bringerName: state.me.name,
+          createdAt: nowIso()
+        });
       }).then(function(){
         toast("Added to the list");
         renderAll();
-      }).catch(function(err){ console.error(err); toast("Couldn't add — try again"); });
+      }).catch(function(err){ console.error(err); writeFailToast(); });
     }
   }
 
   function deleteItem(id){
-    deleteDoc(doc(state.db, "items", id)).then(function(){
+    authReady.then(function(){
+      return deleteDoc(doc(state.db, "items", id));
+    }).then(function(){
       toast("Removed");
-    }).catch(function(err){ console.error(err); toast("Couldn't remove — try again"); });
+    }).catch(function(err){ console.error(err); writeFailToast(); });
   }
 
   function startEditItem(id){
@@ -919,33 +949,43 @@ const firebaseConfig = {
   function hostAddNeeded(label, categoryId){
     label = label.trim();
     if (!label) return;
-    setDoc(doc(state.db, "needed", slugify(label)), {
-      label: label, category: categoryId, addedAt: nowIso()
-    }).then(function(){ toast("Added to needed list"); }).catch(function(err){ console.error(err); toast("Couldn't save — try again"); });
+    authReady.then(function(){
+      return setDoc(doc(state.db, "needed", slugify(label)), {
+        label: label, category: categoryId, addedAt: nowIso()
+      });
+    }).then(function(){ toast("Added to needed list"); }).catch(function(err){ console.error(err); writeFailToast(); });
   }
 
   function hostRemoveNeeded(id){
-    deleteDoc(doc(state.db, "needed", id)).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); toast("Couldn't remove — try again"); });
+    authReady.then(function(){
+      return deleteDoc(doc(state.db, "needed", id));
+    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(); });
   }
 
   function hostAddHousehold(m1, m2){
     m1 = m1.trim(); m2 = m2.trim();
     if (!m1 || !m2) return;
     var label = m1 + " & " + m2;
-    setDoc(doc(state.db, "households", slugify(label)), {
-      members: [m1, m2], label: label, addedAt: nowIso()
-    }).then(function(){ toast("Household added"); }).catch(function(err){ console.error(err); toast("Couldn't save — try again"); });
+    authReady.then(function(){
+      return setDoc(doc(state.db, "households", slugify(label)), {
+        members: [m1, m2], label: label, addedAt: nowIso()
+      });
+    }).then(function(){ toast("Household added"); }).catch(function(err){ console.error(err); writeFailToast(); });
   }
 
   function hostRemoveHousehold(id){
-    deleteDoc(doc(state.db, "households", id)).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); toast("Couldn't remove — try again"); });
+    authReady.then(function(){
+      return deleteDoc(doc(state.db, "households", id));
+    }).then(function(){ toast("Removed"); }).catch(function(err){ console.error(err); writeFailToast(); });
   }
 
   function seedNeededIfEmpty(){
     getDocs(collection(state.db, "needed")).then(function(snap){
       if (!snap.empty) return;
-      DEFAULT_NEEDED.forEach(function(n){
-        setDoc(doc(state.db, "needed", slugify(n.label)), { label: n.label, category: n.category, addedAt: nowIso() }).catch(function(){});
+      return authReady.then(function(){
+        DEFAULT_NEEDED.forEach(function(n){
+          setDoc(doc(state.db, "needed", slugify(n.label)), { label: n.label, category: n.category, addedAt: nowIso() }).catch(function(){});
+        });
       });
     }).catch(function(err){ console.error(err); });
   }
@@ -1043,19 +1083,21 @@ const firebaseConfig = {
       renderAll();
       return;
     }
-    signInAnonymously(auth).catch(function(err){
-      console.error("Anonymous sign-in failed", err);
-    }).then(function(){
-      state.dbStatus = "ready";
-      seedNeededIfEmpty();
-      subscribe();
-      if (loadIdentity()){
-        resolveIdentity(state.me.name, state.me.slug, 1);
-      } else {
-        state.screen = "name";
-        renderAll();
-      }
-    });
+    // Kick off anonymous sign-in in the background but don't block the UI
+    // on it — reads work without it, and writes await `authReady` (which
+    // resolves after 8s regardless, so a blocked/hanging request can never
+    // freeze the page).
+    authReady = withTimeout(signInAnonymously(auth), 8000);
+
+    state.dbStatus = "ready";
+    seedNeededIfEmpty();
+    subscribe();
+    if (loadIdentity()){
+      resolveIdentity(state.me.name, state.me.slug, 1);
+    } else {
+      state.screen = "name";
+      renderAll();
+    }
   }
 
   boot();
